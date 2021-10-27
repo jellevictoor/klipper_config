@@ -5,7 +5,7 @@ backupdir="backup/"
 
 cd ~/klipper_config
 
-git pull origin Voron_V2.1442
+git pull origin voron_v2.1442
 
 for file in *[0-9].cfg; do
         if [ -f "$file" ] # does file exist?
@@ -17,4 +17,4 @@ done
 
 git add .
 git commit -m "backup."$today
-git push -u origin Voron_V2.1442 --force
+git push -u origin voron_v2.1442 --force
