@@ -31,30 +31,12 @@ gcode:
     
     STATUS_HEATING
     SET_FAN_SPEED FAN=filter SPEED=0.6
-    M140 S{target_bed}                      ; start bed heater
-    M109 S{thermal_expansion_probe_temp}    ; preheat nozzle to probing temp
-    M190 S{target_bed}                      ; wait on bed temperature
+    M140 S{target_bed}     ; start bed heater
+    M109 S150       ; preheat nozzle to probing temp
+    M190 S{target_bed}     ; wait on bed temperature
+    G4 P60000       ; optional, let temps settle for 1 min
 
-    ##  Clean at print temperature, not at probing temperature. The brush can
-    ##  only take off residue that is molten, and clean_nozzle skips its purge
-    ##  below purge_temp_min. A bead left on the tip trips the contact probe
-    ##  early, zeroing Z too high and giving a first layer that will not stick.
-    ##  Park over the bucket first so the ooze from heating lands there.
-    {% set cn = printer["gcode_macro clean_nozzle"] %}
-    SET_DISPLAY_TEXT MSG="Heating nozzle to clean"
-    G90
-    G1 Z{cn.brush_top + cn.clearance_z} F{cn.prep_spd_z}
-    G1 Y{printer.toolhead.axis_maximum.y} F{cn.prep_spd_xy}
-    G1 X{cn.bucket_start + (cn.bucket_left_width / 2)} F{cn.prep_spd_xy}
-    M109 S{target_extruder}
-    CLEAN_NOZZLE                            ; purge + wipe with molten filament
-
-    ##  Back below contact_max_hotend_temperature before tapping. The bed soak
-    ##  runs during the cooldown, so this costs no extra time.
-    SET_DISPLAY_TEXT MSG="Soak and cool for contact probe"
-    M104 S{thermal_expansion_probe_temp}
-    G4 P60000                               ; let temps settle for 1 min
-    TEMPERATURE_WAIT SENSOR=extruder MAXIMUM={thermal_expansion_probe_temp}
+    CLEAN_NOZZLE     ; call another macro to wipe nozzle if available
     
     SET_DISPLAY_TEXT MSG="Beacon calibrate contact"      # Displays info
 
